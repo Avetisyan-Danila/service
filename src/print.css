@@ -1,0 +1,57 @@
+@media print {
+	/* прячем меню и лишнее */
+	.MuiDrawer-root,
+	.MuiAppBar-root,
+	button,
+	.MuiTabs-root {
+		display: none !important;
+	}
+
+	/* убираем лишние отступы */
+	body {
+		margin: 0;
+	}
+
+	/* сделаем контент на всю ширину */
+	main {
+		padding: 0 !important;
+	}
+}
+
+@media print {
+	h5,
+	h6 {
+		margin: 0 0 8px 0 !important;
+	}
+
+	/* делаем карточки без теней */
+	.MuiPaper-root {
+		box-shadow: none !important;
+		border: 1px solid #ddd !important;
+	}
+}
+
+@media print {
+	/* скрываем левое меню и верхнюю шапку приложения */
+	.MuiDrawer-root,
+	.MuiAppBar-root {
+		display: none !important;
+	}
+
+	/* скрываем кнопки и табы (если хочешь печатать именно текущий отчёт без вкладок) */
+	button,
+	.MuiTabs-root {
+		display: none !important;
+	}
+
+	/* разворачиваем контент на всю ширину */
+	main {
+		padding: 0 !important;
+	}
+
+	/* убираем тени */
+	.MuiPaper-root {
+		box-shadow: none !important;
+		border: 1px solid #ddd !important;
+	}
+}

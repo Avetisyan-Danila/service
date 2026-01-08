@@ -46,14 +46,6 @@ type ItemRow = {
 	line_total: number
 }
 
-type DbItemRow = {
-	order_id: string
-	product_id: string
-	quantity: number
-	price: number
-	products: { name: string } | null
-}
-
 type PaymentRow = {
 	id: string
 	payment_date: string
@@ -215,8 +207,20 @@ export function OrderPage() {
 			return
 		}
 
-		setOrder(o as OrderInfo)
-		setStatus((o as OrderInfo).status)
+		const orderData: OrderInfo = {
+			id: o.id,
+			order_date: o.order_date,
+			status: o.status,
+			total_amount: o.total_amount,
+			clients:
+				Array.isArray(o.clients) && o.clients.length > 0 ? o.clients[0] : null,
+			employees:
+				Array.isArray(o.employees) && o.employees.length > 0
+					? o.employees[0]
+					: null,
+		}
+		setOrder(orderData)
+		setStatus(orderData.status)
 
 		const { data: it, error: itErr } = await supabase
 			.from('order_items')
@@ -230,10 +234,13 @@ export function OrderPage() {
 		}
 
 		const mappedItems =
-			(it as DbItemRow[] | null)?.map(x => ({
+			(it as any[] | null)?.map(x => ({
 				id: `${x.order_id}_${x.product_id}`,
 				product_id: x.product_id,
-				product_name: x.products?.name ?? '—',
+				product_name:
+					Array.isArray(x.products) && x.products.length > 0
+						? x.products[0]?.name ?? '—'
+						: x.products?.name ?? '—',
 				quantity: x.quantity,
 				price: Number(x.price) || 0,
 				line_total: (Number(x.price) || 0) * (Number(x.quantity) || 0),
@@ -472,8 +479,15 @@ export function OrderPage() {
 						STATUS_OPTIONS.find(s => s.value === order.status)?.label ?? '—'
 					}
 					color={
-						STATUS_OPTIONS.find(s => s.value === order.status)?.color ??
-						'default'
+						(STATUS_OPTIONS.find(s => s.value === order.status)?.color ??
+							'default') as
+							| 'default'
+							| 'primary'
+							| 'secondary'
+							| 'error'
+							| 'info'
+							| 'success'
+							| 'warning'
 					}
 				/>
 

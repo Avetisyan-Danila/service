@@ -19,15 +19,6 @@ import { useNavigate } from 'react-router-dom' // ✅
 import { CreateOrderDialog } from './CreateOrderDialog'
 import { STATUS_OPTIONS } from '../shared/consts'
 
-type DbOrderRow = {
-	id: string
-	order_date: string
-	status: string
-	total_amount: number
-	clients: { name: string } | null
-	employees: { name: string } | null
-}
-
 type OrderRow = {
 	id: string
 	order_date: string
@@ -62,8 +53,8 @@ export function OrdersPage() {
 						STATUS_OPTIONS.find(s => s.value === params.value)?.label ?? '—'
 					}
 					color={
-						STATUS_OPTIONS.find(s => s.value === params.value)?.color ??
-						'default'
+						(STATUS_OPTIONS.find(s => s.value === params.value)?.color ??
+						'default') as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'
 					}
 				/>
 			),
@@ -96,65 +87,23 @@ export function OrdersPage() {
 		}
 
 		const mapped =
-			(data as DbOrderRow[] | null)?.map(o => ({
+			(data as any[] | null)?.map(o => ({
 				id: o.id,
 				order_date: o.order_date,
 				status: o.status,
 				total_amount: o.total_amount ?? 0,
-				client_name: o.clients?.name ?? '—',
-				employee_name: o.employees?.name ?? '—',
+				client_name: Array.isArray(o.clients) && o.clients.length > 0
+					? o.clients[0]?.name ?? '—'
+					: o.clients?.name ?? '—',
+				employee_name: Array.isArray(o.employees) && o.employees.length > 0
+					? o.employees[0]?.name ?? '—'
+					: o.employees?.name ?? '—',
 			})) ?? []
 
 		setRows(mapped)
 		setLoading(false)
 	}
 
-	async function quickCreateTestOrder() {
-		setLoading(true)
-		setError(null)
-
-		const { data: clients, error: cErr } = await supabase
-			.from('clients')
-			.select('id')
-			.limit(1)
-		if (cErr || !clients?.[0]) {
-			setError(cErr?.message ?? 'Нет клиентов в таблице clients')
-			setLoading(false)
-			return
-		}
-
-		const { data: employees, error: eErr } = await supabase
-			.from('employees')
-			.select('id')
-			.limit(1)
-		if (eErr || !employees?.[0]) {
-			setError(eErr?.message ?? 'Нет сотрудников в таблице employees')
-			setLoading(false)
-			return
-		}
-
-		const { data: created, error: insErr } = await supabase
-			.from('orders')
-			.insert({
-				client_id: clients[0].id,
-				employee_id: employees[0].id,
-				status: 'new',
-				total_amount: 0,
-			})
-			.select('id')
-			.single()
-
-		if (insErr) {
-			setError(insErr.message)
-			setLoading(false)
-			return
-		}
-
-		await loadOrders()
-		setLoading(false)
-
-		if (created?.id) navigate(`/orders/${created.id}`) // ✅ сразу открыть
-	}
 
 	useEffect(() => {
 		loadOrders()

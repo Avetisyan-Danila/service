@@ -18,7 +18,7 @@ import AddIcon from '@mui/icons-material/Add'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { ConfirmDialog } from '../shared/ConfirmDialog'
 import { friendlyDeleteError } from '../shared/friendlyError'
 

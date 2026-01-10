@@ -14,6 +14,7 @@ import {
 } from '@mui/material'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { ruRU } from '@mui/x-data-grid/locales'
 import { STATUS_OPTIONS } from '../shared/consts'
 import * as XLSX from 'xlsx'
 import PrintIcon from '@mui/icons-material/Print'
@@ -458,6 +459,7 @@ export function ReportsPage() {
 							disableRowSelectionOnClick
 							loading={loading}
 							pageSizeOptions={[10, 20, 50]}
+							localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
 							initialState={{
 								pagination: { paginationModel: { pageSize: 20, page: 0 } },
 							}}
@@ -485,6 +487,7 @@ export function ReportsPage() {
 							disableRowSelectionOnClick
 							loading={loading}
 							pageSizeOptions={[10, 20, 50]}
+							localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
 							initialState={{
 								pagination: { paginationModel: { pageSize: 20, page: 0 } },
 							}}

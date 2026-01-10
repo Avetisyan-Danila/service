@@ -22,6 +22,7 @@ import SaveIcon from '@mui/icons-material/Save'
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { ruRU } from '@mui/x-data-grid/locales'
 import { ConfirmDialog } from '../shared/ConfirmDialog'
 import { friendlyDeleteError } from '../shared/friendlyError'
 import PrintIcon from '@mui/icons-material/Print'
@@ -57,6 +58,16 @@ type ProductOption = {
 	id: string
 	name: string
 	price: number
+}
+
+function formatDate(dateStr: string): string {
+	if (!dateStr) return '—'
+	const date = new Date(dateStr)
+	return date.toLocaleDateString('ru-RU', {
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+	})
 }
 
 export function OrderPage() {
@@ -156,7 +167,12 @@ export function OrderPage() {
 	]
 
 	const payColumns: GridColDef<PaymentRow>[] = [
-		{ field: 'payment_date', headerName: 'Дата', width: 130 },
+		{
+			field: 'payment_date',
+			headerName: 'Дата',
+			width: 130,
+			valueFormatter: v => formatDate(v as string),
+		},
 		{
 			field: 'amount',
 			headerName: 'Сумма',
@@ -552,7 +568,7 @@ export function OrderPage() {
 							<Typography variant='body2' color='text.secondary'>
 								Дата
 							</Typography>
-							<Typography>{order.order_date}</Typography>
+							<Typography>{formatDate(order.order_date)}</Typography>
 						</Box>
 
 						<Box sx={{ minWidth: 160 }}>
@@ -685,6 +701,7 @@ export function OrderPage() {
 							loading={savingItems}
 							disableRowSelectionOnClick
 							pageSizeOptions={[10, 20, 50]}
+							localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
 							initialState={{
 								pagination: { paginationModel: { pageSize: 20, page: 0 } },
 							}}
@@ -748,6 +765,7 @@ export function OrderPage() {
 							columns={payColumns}
 							disableRowSelectionOnClick
 							pageSizeOptions={[10, 20, 50]}
+							localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
 							initialState={{
 								pagination: { paginationModel: { pageSize: 20, page: 0 } },
 							}}

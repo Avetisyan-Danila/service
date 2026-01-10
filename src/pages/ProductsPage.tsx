@@ -19,6 +19,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { ruRU } from '@mui/x-data-grid/locales'
 import { ConfirmDialog } from '../shared/ConfirmDialog'
 import { friendlyDeleteError } from '../shared/friendlyError'
 
@@ -297,6 +298,7 @@ export function ProductsPage() {
 					loading={loading}
 					disableRowSelectionOnClick
 					pageSizeOptions={[10, 20, 50]}
+					localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
 					initialState={{
 						pagination: { paginationModel: { pageSize: 20, page: 0 } },
 					}}

@@ -1,5 +1,4 @@
 export const STATUS_OPTIONS = [
-	{ value: 'all', label: 'Все', color: 'default' },
 	{ value: 'new', label: 'Новый', color: 'info' },
 	{ value: 'in_work', label: 'В работе', color: 'warning' },
 	{ value: 'done', label: 'Выполнен', color: 'success' },

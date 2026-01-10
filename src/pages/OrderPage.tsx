@@ -213,10 +213,20 @@ export function OrderPage() {
 			status: o.status,
 			total_amount: o.total_amount,
 			clients:
-				Array.isArray(o.clients) && o.clients.length > 0 ? o.clients[0] : null,
+				Array.isArray(o.clients) && o.clients.length > 0
+					? o.clients[0]
+					: o.clients &&
+					  typeof o.clients === 'object' &&
+					  !Array.isArray(o.clients)
+					? o.clients
+					: null,
 			employees:
 				Array.isArray(o.employees) && o.employees.length > 0
 					? o.employees[0]
+					: o.employees &&
+					  typeof o.employees === 'object' &&
+					  !Array.isArray(o.employees)
+					? o.employees
 					: null,
 		}
 		setOrder(orderData)

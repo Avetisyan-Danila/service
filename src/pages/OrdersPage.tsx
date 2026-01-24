@@ -41,7 +41,20 @@ export function OrdersPage() {
 	const [q, setQ] = useState('')
 
 	const columns: GridColDef<OrderRow>[] = [
-		{ field: 'order_date', headerName: 'Дата', width: 130 },
+		{
+			field: 'order_date',
+			headerName: 'Дата',
+			width: 130,
+			valueFormatter: (value: string) => {
+				if (!value) return '—'
+				const date = new Date(value)
+				if (isNaN(date.getTime())) return value
+				const day = String(date.getDate()).padStart(2, '0')
+				const month = String(date.getMonth() + 1).padStart(2, '0')
+				const year = date.getFullYear()
+				return `${day}.${month}.${year}`
+			},
+		},
 		{ field: 'client_name', headerName: 'Клиент', flex: 1, minWidth: 220 },
 		{ field: 'employee_name', headerName: 'Менеджер', width: 180 },
 		{

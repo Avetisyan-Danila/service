@@ -56,7 +56,12 @@ export function OrdersPage() {
 			},
 		},
 		{ field: 'client_name', headerName: 'Клиент', flex: 1, minWidth: 220 },
-		{ field: 'employee_name', headerName: 'Менеджер', width: 180 },
+		{
+			field: 'employee_name',
+			headerName: 'Менеджер',
+			flex: 1,
+			minWidth: 220,
+		},
 		{
 			field: 'status',
 			headerName: 'Статус',
@@ -68,7 +73,14 @@ export function OrdersPage() {
 					}
 					color={
 						(STATUS_OPTIONS.find(s => s.value === params.value)?.color ??
-						'default') as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'
+							'default') as
+							| 'default'
+							| 'primary'
+							| 'secondary'
+							| 'error'
+							| 'info'
+							| 'success'
+							| 'warning'
 					}
 				/>
 			),
@@ -89,7 +101,7 @@ export function OrdersPage() {
 		const { data, error } = await supabase
 			.from('orders')
 			.select(
-				'id, order_date, status, total_amount, clients(name), employees(name)'
+				'id, order_date, status, total_amount, clients(name), employees(name)',
 			)
 			.order('order_date', { ascending: false })
 			.limit(200)
@@ -106,18 +118,19 @@ export function OrdersPage() {
 				order_date: o.order_date,
 				status: o.status,
 				total_amount: o.total_amount ?? 0,
-				client_name: Array.isArray(o.clients) && o.clients.length > 0
-					? o.clients[0]?.name ?? '—'
-					: o.clients?.name ?? '—',
-				employee_name: Array.isArray(o.employees) && o.employees.length > 0
-					? o.employees[0]?.name ?? '—'
-					: o.employees?.name ?? '—',
+				client_name:
+					Array.isArray(o.clients) && o.clients.length > 0
+						? (o.clients[0]?.name ?? '—')
+						: (o.clients?.name ?? '—'),
+				employee_name:
+					Array.isArray(o.employees) && o.employees.length > 0
+						? (o.employees[0]?.name ?? '—')
+						: (o.employees?.name ?? '—'),
 			})) ?? []
 
 		setRows(mapped)
 		setLoading(false)
 	}
-
 
 	useEffect(() => {
 		loadOrders()

@@ -99,29 +99,29 @@ export function OrderPage() {
 
 	// форма добавления позиции
 	const [selectedProduct, setSelectedProduct] = useState<ProductOption | null>(
-		null
+		null,
 	)
 	const [itemQty, setItemQty] = useState<number>(1)
 	const [itemPrice, setItemPrice] = useState<number>(0)
 	const [addingItem, setAddingItem] = useState(false)
 
 	// платежи
-	const [payAmount, setPayAmount] = useState<number>(0)
+	const [payAmount, setPayAmount] = useState<string | number>('')
 	const [payMethod, setPayMethod] = useState('cash')
 	const [addingPay, setAddingPay] = useState(false)
 
 	const paidSum = useMemo(
 		() => payments.reduce((acc, p) => acc + (Number(p.amount) || 0), 0),
-		[payments]
+		[payments],
 	)
 	const debt = useMemo(
 		() => Math.max(0, (Number(order?.total_amount) || 0) - paidSum),
-		[order, paidSum]
+		[order, paidSum],
 	)
 
 	const itemsTotal = useMemo(
 		() => items.reduce((acc, it) => acc + (Number(it.line_total) || 0), 0),
-		[items]
+		[items],
 	)
 
 	const itemsColumns: GridColDef<ItemRow>[] = [
@@ -180,7 +180,14 @@ export function OrderPage() {
 			type: 'number',
 			valueFormatter: v => `${Number(v).toFixed(2)}`,
 		},
-		{ field: 'payment_method', headerName: 'Способ', flex: 1, minWidth: 180 },
+		{
+			field: 'payment_method',
+			headerName: 'Способ',
+			flex: 1,
+			minWidth: 180,
+			valueFormatter: v =>
+				PAYMENT_METHOD_OPTIONS.find(s => s.value === v)?.label ?? '—',
+		},
 	]
 
 	async function loadProducts() {
@@ -200,7 +207,7 @@ export function OrderPage() {
 				id: p.id,
 				name: p.name,
 				price: Number(p.price) || 0,
-			})) ?? []
+			})) ?? [],
 		)
 	}
 
@@ -212,7 +219,7 @@ export function OrderPage() {
 		const { data: o, error: oErr } = await supabase
 			.from('orders')
 			.select(
-				'id, order_date, status, total_amount, clients(id, name), employees(id, name)'
+				'id, order_date, status, total_amount, clients(id, name), employees(id, name)',
 			)
 			.eq('id', id)
 			.single()
@@ -232,18 +239,18 @@ export function OrderPage() {
 				Array.isArray(o.clients) && o.clients.length > 0
 					? o.clients[0]
 					: o.clients &&
-					  typeof o.clients === 'object' &&
-					  !Array.isArray(o.clients)
-					? o.clients
-					: null,
+						  typeof o.clients === 'object' &&
+						  !Array.isArray(o.clients)
+						? o.clients
+						: null,
 			employees:
 				Array.isArray(o.employees) && o.employees.length > 0
 					? o.employees[0]
 					: o.employees &&
-					  typeof o.employees === 'object' &&
-					  !Array.isArray(o.employees)
-					? o.employees
-					: null,
+						  typeof o.employees === 'object' &&
+						  !Array.isArray(o.employees)
+						? o.employees
+						: null,
 		}
 		setOrder(orderData)
 		setStatus(orderData.status)
@@ -265,8 +272,8 @@ export function OrderPage() {
 				product_id: x.product_id,
 				product_name:
 					Array.isArray(x.products) && x.products.length > 0
-						? x.products[0]?.name ?? '—'
-						: x.products?.name ?? '—',
+						? (x.products[0]?.name ?? '—')
+						: (x.products?.name ?? '—'),
 				quantity: x.quantity,
 				price: Number(x.price) || 0,
 				line_total: (Number(x.price) || 0) * (Number(x.quantity) || 0),
@@ -347,7 +354,7 @@ export function OrderPage() {
 				quantity: qty,
 				price,
 			},
-			{ onConflict: 'order_id,product_id' }
+			{ onConflict: 'order_id,product_id' },
 		)
 
 		if (upsertErr) {
@@ -375,7 +382,7 @@ export function OrderPage() {
 			return items.map(x =>
 				x.product_id === selectedProduct.id
 					? { ...x, quantity: qty, price, line_total: qty * price }
-					: x
+					: x,
 			)
 		})()
 
@@ -384,7 +391,7 @@ export function OrderPage() {
 		try {
 			const total = nextItems.reduce(
 				(acc, it) => acc + (Number(it.line_total) || 0),
-				0
+				0,
 			)
 			await updateOrderTotal(total)
 		} catch (e: any) {
@@ -423,7 +430,7 @@ export function OrderPage() {
 		try {
 			const total = nextItems.reduce(
 				(acc, it) => acc + (Number(it.line_total) || 0),
-				0
+				0,
 			)
 			await updateOrderTotal(total)
 		} catch (e: any) {
@@ -516,25 +523,6 @@ export function OrderPage() {
 							| 'warning'
 					}
 				/>
-
-				<Box sx={{ flex: 1 }} />
-
-				<Button
-					variant='outlined'
-					onClick={loadAll}
-					startIcon={<RefreshIcon />}
-					disabled={savingItems || addingItem || addingPay}
-				>
-					Обновить
-				</Button>
-
-				<Button
-					variant='outlined'
-					startIcon={<PrintIcon />}
-					onClick={() => window.print()}
-				>
-					Печать
-				</Button>
 			</Stack>
 
 			{error && <Alert severity='error'>{error}</Alert>}

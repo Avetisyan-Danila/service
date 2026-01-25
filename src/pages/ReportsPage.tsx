@@ -15,7 +15,7 @@ import {
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { ruRU } from '@mui/x-data-grid/locales'
-import { STATUS_OPTIONS } from '../shared/consts'
+import { STATUS_OPTIONS, PAYMENT_METHOD_OPTIONS } from '../shared/consts'
 import * as XLSX from 'xlsx'
 import PrintIcon from '@mui/icons-material/Print'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
@@ -50,6 +50,31 @@ function isoDate(d: Date) {
 
 function money(n: number) {
 	return Number(n || 0).toFixed(2)
+}
+
+function normalizePaymentMethod(method: string | null): string | null {
+	if (!method) return null
+	
+	const normalized = method.toLowerCase().trim()
+	
+	// Сначала проверяем константы
+	const found = PAYMENT_METHOD_OPTIONS.find(o => o.value === normalized)
+	if (found) return found.value
+	
+	// Нормализация русских вариантов
+	if (normalized === 'наличный' || normalized === 'наличные') return 'cash'
+	if (normalized === 'безналичный' || normalized === 'безналичные') return 'card'
+	
+	// Если не найдено, возвращаем null (не отображаем)
+	return null
+}
+
+function getPaymentMethodLabel(method: string | null): string | null {
+	const normalized = normalizePaymentMethod(method)
+	if (!normalized) return null
+	
+	const found = PAYMENT_METHOD_OPTIONS.find(o => o.value === normalized)
+	return found?.label ?? null
 }
 
 export function ReportsPage() {
@@ -198,8 +223,9 @@ export function ReportsPage() {
 	const byMethod = useMemo(() => {
 		const m = new Map<string, number>()
 		for (const p of payments) {
-			const k = p.payment_method ?? '—'
-			m.set(k, (m.get(k) ?? 0) + (Number(p.amount) || 0))
+			const normalized = normalizePaymentMethod(p.payment_method)
+			if (!normalized) continue // Пропускаем неизвестные способы оплаты
+			m.set(normalized, (m.get(normalized) ?? 0) + (Number(p.amount) || 0))
 		}
 		return Array.from(m.entries()).sort((a, b) => b[1] - a[1])
 	}, [payments])
@@ -255,10 +281,17 @@ export function ReportsPage() {
 
 		// 4) Финансы (способы оплат)
 		const financeMethodsSheet = XLSX.utils.json_to_sheet(
-			byMethod.map(([method, sum]) => ({
-				'Способ оплаты': method,
-				'Сумма оплат': Number(Number(sum || 0).toFixed(2)),
-			}))
+			byMethod
+				.map(([method, sum]) => {
+					const label = getPaymentMethodLabel(method)
+					return label
+						? {
+								'Способ оплаты': label,
+								'Сумма оплат': Number(Number(sum || 0).toFixed(2)),
+							}
+						: null
+				})
+				.filter((x): x is { 'Способ оплаты': string; 'Сумма оплат': number } => x !== null)
 		)
 
 		const wb = XLSX.utils.book_new()
@@ -531,11 +564,15 @@ export function ReportsPage() {
 								</Typography>
 
 								<Stack direction='row' spacing={2} flexWrap='wrap'>
-									{byMethod.map(([m, sum]) => (
-										<Typography key={m} variant='body2'>
-											<b>{m}</b>: {money(sum)}
-										</Typography>
-									))}
+									{byMethod.map(([m, sum]) => {
+										const label = getPaymentMethodLabel(m)
+										if (!label) return null
+										return (
+											<Typography key={m} variant='body2'>
+												<b>{label}</b>: {money(sum)}
+											</Typography>
+										)
+									})}
 								</Stack>
 							</Box>
 						)}

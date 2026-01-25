@@ -25,9 +25,7 @@ import { DataGrid, type GridColDef } from '@mui/x-data-grid'
 import { ruRU } from '@mui/x-data-grid/locales'
 import { ConfirmDialog } from '../shared/ConfirmDialog'
 import { friendlyDeleteError } from '../shared/friendlyError'
-import PrintIcon from '@mui/icons-material/Print'
 import { PAYMENT_METHOD_OPTIONS, STATUS_OPTIONS } from '../shared/consts'
-import RefreshIcon from '@mui/icons-material/Refresh'
 
 type OrderInfo = {
 	id: string
